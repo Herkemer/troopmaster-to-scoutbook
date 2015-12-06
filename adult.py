@@ -54,7 +54,7 @@ if __name__ == '__main__':
     parser.add_argument('infile', type=argparse.FileType('rb'), metavar='Adult.txt')
     parser.add_argument('outfile', nargs='?', type=argparse.FileType('wb', 0),
                         metavar='adults.csv', default=sys.stdout)
-    parser.add_argument('--config', required=True, type=argparse.FileType('rb'),
+    parser.add_argument('--config', required=False, type=argparse.FileType('rb'),
                         metavar='scoutbook.cfg', default='scoutbook.cfg')
     parser.add_argument('--unit-number', type=str, metavar='Num', required=True,
                         help='Troop unit number you will be using in Scoutbook.')
