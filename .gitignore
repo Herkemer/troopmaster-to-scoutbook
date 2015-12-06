@@ -55,3 +55,10 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Emacs backup files
+*~
+
+# Working Files  
+*.csv
+*.txt
