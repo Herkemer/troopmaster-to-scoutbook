@@ -22,6 +22,9 @@ class InvalidPosition(Exception):
 class DuplicateEmail(Exception):
     pass
 
+
+field_mappings = {}
+
 def init(config):
     """Initialize all of the various mappings that are needed.
     """
@@ -52,7 +55,25 @@ def populate_valid_scoutbook_positions(config):
 
     for field in config.items('Valid Scoutbook Positions'):
         valid_scoutbook_positions.append(field[0])
-    
+
+def populate_mapping(config, map_type):
+    """Populate mapping for the given type.
+    """
+    mapping = {}
+    for field in config.items(map_type):
+        mapping[field[0]] = field[1]
+    field_mappings[map_type] = mapping
+
+def lookup_mapping(map_type, value):
+    """Use the field_mappings dictionary to find a given value or return None.
+    """
+    try:
+        return field_mappings[map_type][value]
+    except:
+        # If we get any exceptions on the lookup just drop through
+        pass
+    return None
+
 def just_digits(str):
     input_type = type(str)
     return input_type().join(filter(input_type.isdigit, str))
@@ -141,4 +162,111 @@ def create_header_array(header):
             order.append(field)
 
     return order
+
+scouts_by_name = {}
+scouts_by_member_id = {}
+def read_scout_file(filep):
+    """Utility function to read in the Troopmaster scout export file so that the
+    data can be used to help facilitate finding scouts from various reports.
+    """
+
+    reader = csv.DictReader(filep)
+
+    for row in reader:
+        member_id = row['BSA ID#']
+        key = "%s %s" % (row['First Name'], row['Last Name'])
+        scouts_by_name[key] = { 'member_id': member_id,
+                                'first_name': row['First Name'],
+                                'middle_name': row['Middle Name'],
+                                'last_name': row['Last Name'],
+        }
+
+        # If a nickname is defined, create an additional entry with that nickname
+        if row['Nickname']:
+            key = "%s %s" % (row['Nickname'], row['Last Name'])
+            scouts_by_name[key] = { 'member_id': member_id,
+                                    'first_name': row['First Name'],
+                                    'middle_name': row['Middle Name'],
+                                    'last_name': row['Last Name'],
+            }
+
+        # It is possible that a scout doesn't have a member_id so we won't add them there
+        if member_id:
+            scouts_by_member_id[member_id] = { 'first_name': row['First Name'],
+                                               'middle_name': row['Middle Name'],
+                                               'last_name': row['Last Name'],
+            }
+
+def lookup_scout_by_name(name):
+    """Utility function to lookup scout information by name.
+    """
+    try:
+        return scouts_by_name[name]
+    except:
+        # Any exception just passthrough
+        pass
+    return None
+
+def lookup_scout_by_member_id(member_id):
+    """Utility function to lookup scout information by member_id.
+"""
+    try:
+        return scouts_by_member_id[member_id]
+    except:
+        # Any exception just passthrough
+        pass
+    return None
+
+adults_by_name = {}
+adults_by_member_id = {}
+def read_adult_file(filep):
+    """Utility function to read in the Troopmaster adult export file so that the
+    data can be used to help facilitate finding adults from various reports.
+    """
+    reader = csv.DictReader(filep)
+
+    for row in reader:
+        member_id = row['BSA ID#']
+        key = "%s %s" % (row['First Name'], row['Last Name'])
+        adults_by_name[key] = { 'member_id': member_id,
+                                'first_name': row['First Name'],
+                                'middle_name': row['Middle Name'],
+                                'last_name': row['Last Name'],
+        }
+
+        # If a nickname is defined, create an additional entry with that nickname
+        if row['Nickname']:
+            key = "%s %s" % (row['Nickname'], row['Last Name'])
+            adults_by_name[key] = { 'member_id': member_id,
+                                    'first_name': row['First Name'],
+                                    'middle_name': row['Middle Name'],
+                                    'last_name': row['Last Name'],
+            }
+
+        # It is possible that an adult doesn't have a member_id so we won't add them there
+        if member_id:
+            adults_by_member_id[member_id] = { 'first_name': row['First Name'],
+                                               'middle_name': row['Middle Name'],
+                                               'last_name': row['Last Name'],
+            }
+
+def lookup_adult_by_name(name):
+    """Utility function to lookup adult information by name.
+    """
+    try:
+        return adults_by_name[name]
+    except:
+        # Any exception just passthrough
+        pass
+    return None
+
+def lookup_adult_by_member_id(member_id):
+    """Utility function to lookup adult information by member_id.
+"""
+    try:
+        return adults_by_member_id[member_id]
+    except:
+        # Any exception just passthrough
+        pass
+    return None
 
